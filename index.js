@@ -1,9 +1,10 @@
 const express = require('express')
+const dotenv = require('dotenv').config().parsed
 const loginRouter = require('./routes/login')
 const userRouter = require('./routes/user')
 
 const app = express()
-const PORT = process.env.PORT || 3000
+const PORT = dotenv.PORT || 3000
 const sequelize = require('./models')
 
 sequelize.sync().then(() => {
