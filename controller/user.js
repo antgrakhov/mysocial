@@ -1,6 +1,7 @@
 const {v4} = require('uuid')
 const bcrypt = require('bcryptjs')
 const dotenv = require('dotenv').config().parsed
+const {Op} = require('sequelize')
 const User = require('../models/user')
 
 const userRegister = (req, res) => {
@@ -66,7 +67,45 @@ const getUserById = (req, res) => {
         })
 }
 
+const searchByName = (req, res) => {
+    const firstName = req.query.first_name
+    const secondName = req.query.second_name
+
+    const emptyQueries = !firstName && !secondName
+    const shortQueries = firstName?.length < 3 || secondName?.length < 3
+
+    if (emptyQueries || shortQueries) {
+        return res.status(400).send('Невалидные данные')
+    }
+
+    const whereData = {}
+
+    if (firstName) {
+        whereData.first_name = { [Op.like]: `${firstName}%` }
+    }
+
+    if (secondName) {
+        whereData.second_name = { [Op.like]: `${secondName}%` }
+    }
+
+    User.findAll({
+        where: whereData,
+        order: ['id'],
+    })
+        .then((user) => {
+            res.json(user)
+        })
+        .catch(err => {
+            res.status(500).json({
+                message: err,
+                request_id: 'search',
+                code: 500
+            })
+        })
+}
+
 module.exports = {
     userRegister,
     getUserById,
+    searchByName,
 }
