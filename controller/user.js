@@ -50,7 +50,11 @@ const getUserById = (req, res) => {
         return res.status(400).send('Невалидные данные')
     }
 
-    User.findByPk(id)
+    User.findByPk(id, {
+        attributes: {
+            exclude: ['password', 'token'],
+        },
+    })
         .then((user) => {
             if (!user) {
                 return res.status(404).send('Анкета не найдена')
@@ -89,6 +93,9 @@ const searchByName = (req, res) => {
     }
 
     User.findAll({
+        attributes: {
+            exclude: ['password', 'token']
+        },
         where: whereData,
         order: ['id'],
     })
